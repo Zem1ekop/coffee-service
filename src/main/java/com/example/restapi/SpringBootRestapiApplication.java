@@ -1,11 +1,11 @@
 package com.example.restapi;
 
 import jakarta.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -18,10 +18,15 @@ import java.util.Optional;
 @ConfigurationPropertiesScan
 public class SpringBootRestapiApplication {
 
-    public static void main(String[] args) {
+    static void main(String[] args) {
         SpringApplication.run(SpringBootRestapiApplication.class, args);
     }
 
+    @Bean
+    @ConfigurationProperties(prefix = "droid")
+    Droid createDroid() {
+        return new Droid();
+    }
 }
 
 @Component
@@ -40,6 +45,41 @@ class DataLoader {
                 new Coffee("Café Lareño"),
                 new Coffee("Café Três Pontas")
         ));
+    }
+}
+
+class Droid {
+    private String id, description;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+}
+
+@RestController
+@RequestMapping("/droid")
+class DroidController {
+    private final Droid droid;
+
+    public DroidController(Droid droid) {
+        this.droid = droid;
+    }
+
+    @GetMapping
+    Droid getDroid() {
+        return droid;
     }
 }
 
@@ -62,7 +102,6 @@ class GreetingController {
         return greeting.getCoffee();
     }
 }
-
 
 
 @RestController
@@ -105,19 +144,23 @@ class RestApiDemoController {
     }
 }
 
-@ConfigurationProperties (prefix = "greeting")
+@ConfigurationProperties(prefix = "greeting")
 class Greeting {
     private String name;
     private String coffee;
+
     public String getName() {
         return name;
     }
+
     public void setName(String name) {
         this.name = name;
     }
+
     public String getCoffee() {
         return coffee;
     }
+
     public void setCoffee(String coffee) {
         this.coffee = coffee;
     }
